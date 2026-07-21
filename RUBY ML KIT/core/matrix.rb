@@ -388,7 +388,11 @@ class Matrix
     return Matrix.vector_mean(errors.flatten)
   end  
 =end
-  def reshape(new_rows, new_cols)
+  def reshape(*args)
+
+    new_rows, new_cols = args.length ==1 ? args[0]:args
+
+
     unless @rows * @cols == new_rows * new_cols
       raise ArgumentError, "bad dimensions in reshape operation"
     end
@@ -418,14 +422,38 @@ class Matrix
     
   end    
   
- def pick_by_row(indices)
-  (0...@rows).map { |r| self.get(r, indices.get(r,0)) }
- end    
+  def pick_by_row(indices)
+   (0...@rows).map { |r| self.get(r, indices.get(r,0)) }
+  end    
  
- def self.one_hot(label, num_classes)
-   vector = Array.new(num_classes, 0.0)
-   vector[label] = 1.0 
-   Matrix.new([vector]).transpose
- end
+  def self.one_hot(label, num_classes)
+    vector = Array.new(num_classes, 0.0)
+    vector[label] = 1.0 
+    Matrix.new([vector]).transpose
+  end
+
+  def reduce_keepdims(axes)
+
+    out_rows = axes.include?(0) ? 1:@rows 
+    out_cols = axes.include?(1) ? 1:@cols
+    grid = Matrix.create_zeroes(out_rows, out_cols)
+    
+    (0...out_rows).each do |out_r|
+      (0...out_cols).each do |out_c|
+        row_range = axes.include?(0) ? (0...@rows):[out_r]
+        col_range = axes.include?(1) ? (0...@cols):[out_c]
+	values = row_range.flat_map {|r| col_range.map { |c| self.get(r,c)}}
+        grid[out_r][out_c] = yield(values)
+      end
+    end
+    Matrix.new(grid)        
+  end
+
+  
+
+
+
+
+
 
 end

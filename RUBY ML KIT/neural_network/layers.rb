@@ -29,8 +29,6 @@ class Layer
     raise NotImplementedError, "Subclass must implement backward"
   end
 
-  
-
 end
 
 class Linear < Layer
@@ -71,6 +69,7 @@ end
 
 class Dense < Linear
   def initialize(input_size, output_size, initializer: :he)
+  
     weights = case initializer
     	      when :he then Matrix.init_he(input_size, output_size)
               when :xavier then Matrix.init_xavier(input_size, output_size)
@@ -86,16 +85,18 @@ end
 class Flatten < Layer
   def initialize
     super()
-    input_shape = nil
   end
   
   def forward(input)
     @input_shape = input.shape
-    return Matrix.new([input.flatten])
+    batch_size = @input.shape[0]
+    feature_size = @input.shape[1..-1].reduce(1,:*)
+    input.reshape([batch_size, feature_size])
+
   end
 
   def backward(output_gradient, learning_rate)
-    output_gradient.reshape(*@input_shape)
+    output_gradient.reshape(@input_shape)
   end
 
 end

@@ -1,6 +1,6 @@
 # Dwight Mayer, logistic regression implementation, July 10th, 2026
 
-require_relative '../matrix'
+require_relative '../core/matrix'
 
 
 class LogisticRegression

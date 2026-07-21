@@ -7,9 +7,11 @@ MATRIX
 - repeat, diag, reshape methods for basic Matrix functionality
 - column for @cols
 - observations for @rows
+- to tensor method
 
 TENSOR
-- 
+- to matrix method
+- arithmetic / combination methods
 
 
 LAYERS

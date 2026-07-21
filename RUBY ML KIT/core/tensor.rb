@@ -193,6 +193,32 @@ class Tensor
     reduce(axes) {|values| values.min}
   end
 
+  def reduce_keepdims(axes)
+    output_shape = @shape.each_with_index.map {|dim,i| axes.include?(i) ? 1:dim}
+    buckets = Hash.new { |h,k| h[k] = [] }
+    
+    self.class.each_index(@shape) do |indices, flat_idx|
+      key = indices.each_with_index.map {|idx, d| axes.include?(d) ? 0:idx}
+      buckets[key] << self.get(*indices)
+    end
+
+    new_data = Array.new(output_shape.reduce(1), {|a,d| a*d})
+
+    result = Tensor.new(Array.new(new_data.length, 0), output_shape)
+    buckets.each {|key, values| result.set(*key, yield(values))}
+    result
+
+  end
+
+  
 
 
 end
+
+
+
+
+
+
+
+
